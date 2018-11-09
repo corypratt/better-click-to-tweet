@@ -36,6 +36,7 @@ function bctt_admin_menu() {
 function bctt_register_settings() {
 	register_setting( 'bctt_clicktotweet-options', 'bctt-twitter-handle', 'bctt_validate_settings' );
 	register_setting( 'bctt_clicktotweet-options', 'bctt-short-url', 'bctt_validate_checkbox' );
+	register_setting( 'bctt_clicktotweet-options', 'bctt-fb-app-id', 'bctt_validate_settings' );
 }
 
 function bctt_validate_settings( $input ) {
@@ -126,6 +127,15 @@ function bctt_settings_page() {
 										<td><input id="bctt-twitter-handle" type="text" name="bctt-twitter-handle"
 										           value="<?php echo esc_attr( get_option( 'bctt-twitter-handle' ) ); ?>"/>
 										</td>
+									</tr>
+									<tr valign="top">
+										<th style="width: 200px;">
+											<label for="bctt-fb-app-id"><?php _ex( 'Facebook App ID', 'label for text input on settings screen', 'better-click-to-tweet' ); ?></label>
+										</th>
+										<td><input id="bctt-fb-app-id" type="text" name="bctt-fb-app-id"
+										           value="<?php echo esc_attr( get_option( 'bctt-fb-app-id' ) ); ?>"/>
+										</td>
+									</tr>
 									<tr valign="top">
 										<th style="width: 200px;">
 											<label for="bctt-short-url"><?php _ex( 'Use Short URL?', 'label for checkbox on settings screen', 'better-click-to-tweet' ); ?></label>

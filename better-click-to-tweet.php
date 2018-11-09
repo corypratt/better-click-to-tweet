@@ -1,13 +1,13 @@
 <?php
 /*
-Plugin Name: Better Click To Tweet
-Description: Add Click to Tweet boxes simply and elegantly to your posts or pages. All the features of a premium plugin, for FREE!
+Plugin Name: MC's Better Click To Tweet
+Description: Based on Ben Meredith's 'Better Click To Tweet'. Add's facebook functionality and modifies some of the look/feel
 Version: 5.6.0
 Author: Ben Meredith
 Author URI: https://www.betterclicktotweet.com
 Plugin URI: https://wordpress.org/plugins/better-click-to-tweet/
 License: GPL2
-Text Domain: better-click-to-tweet 
+Text Domain: better-click-to-tweet
 */
 
 defined( 'ABSPATH' ) or die( "No soup for you. You leave now." );
@@ -18,9 +18,9 @@ include 'bctt-i18n.php';
 include 'admin-nags.php';
 
 /*
-*  	Strips the html, shortens the text (after checking for mb_internal_encoding compatibility) 
+*  	Strips the html, shortens the text (after checking for mb_internal_encoding compatibility)
 *	and adds an ellipsis if the text has been shortened
-* 
+*
 * 	@param string $input raw text string from the shortcode
 * 	@param int $length length for truncation
 * 	@param bool $ellipsis boolean for whether the text has been truncated
@@ -79,7 +79,7 @@ function bctt_shorten( $input, $length, $ellipsis = true, $strip_html = true ) {
 *
 * 	@since 0.1
 * 	@param array $atts an array of shortcode attributes
-*	
+*
 */
 
 function bctt_shortcode( $atts ) {
@@ -187,9 +187,10 @@ function bctt_shortcode( $atts ) {
 		'related' => $related,
 	), 'https://twitter.com/intent/tweet' );
 
+	$uniqueID = mt_rand(10,100);
 	if ( ! is_feed() ) {
 
-		$output = "<span class='" . esc_attr( $bctt_span_class ) . "'><span class='" . esc_attr( $bctt_text_span_class ) . "'><a href='" . esc_url( $href ) . "' target='_blank'" . $rel . ">" . esc_html( $short ) . " </a></span><a href='" . esc_url( $href ) . "' target='_blank' class='" . esc_attr( $bctt_button_span_class ) . "'" . $rel . ">" . esc_html( $atts['prompt'] ) . "</a></span>";
+		$output = "<div class='" . esc_attr( $bctt_span_class ) . "'><span class='" . esc_attr( $bctt_text_span_class ) . "'>" . esc_html( $short ) . "</span><div class='share-buttons__group'><a href='" . esc_url( $href ) . "' target='_blank' class='tweet-button'" . $rel . "><svg id='twitter_logo' data-name='twitter logo' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 250 203.14'><defs><style>.cls-1{fill:#1da1f2;}</style></defs><title>twitter</title><path class='cls-1' d='M153.62,301.59c94.34,0,145.94-78.16,145.94-145.94,0-2.22,0-4.43-.15-6.63A104.36,104.36,0,0,0,325,122.47a102.24,102.24,0,0,1-29.46,8.07,51.46,51.46,0,0,0,22.55-28.37,102.76,102.76,0,0,1-32.57,12.45,51.34,51.34,0,0,0-87.41,46.78A145.63,145.63,0,0,1,92.4,107.81a51.33,51.33,0,0,0,15.88,68.47A50.84,50.84,0,0,1,85,169.86v.65a51.31,51.31,0,0,0,41.15,50.28,51.2,51.2,0,0,1-23.16.88,51.36,51.36,0,0,0,47.92,35.62A102.9,102.9,0,0,1,75,278.55a145.22,145.22,0,0,0,78.62,23' transform='translate(-75 -98.45)'/></svg></a><div id='fb_share_" . $uniqueID . "' class='share-button'" . $rel . "><svg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 58'><defs><style>.cls-1{fill:#898f9c;}.cls-2{fill:#fff;}</style></defs><path class='cls-1' d='M54.8,0H3.2A3.2,3.2,0,0,0,0,3.2V54.8A3.2,3.2,0,0,0,3.2,58H31V35.57H23.45V26.79H31V20.33c0-7.49,4.58-11.57,11.26-11.57A64.2,64.2,0,0,1,49,9.1v7.83h-4.6c-3.64,0-4.35,1.72-4.35,4.26v5.59h8.7l-1.13,8.78H40V58H54.8A3.2,3.2,0,0,0,58,54.8V3.2A3.2,3.2,0,0,0,54.8,0Z'/><path id='f' class='cls-2' d='M40,58V35.57h7.57l1.13-8.78H40V21.2c0-2.54.71-4.26,4.35-4.26H49V9.1a64.2,64.2,0,0,0-6.75-.34C35.56,8.76,31,12.84,31,20.33v6.46H23.45v8.78H31V58Z'/></svg></div></div></div><script>document.getElementById('fb_share_" . $uniqueID . "').onclick = function() { FB.ui({ method: 'share', display: 'popup', href: '" . $bcttURL . "', quote: '" . $text . "' }, function(response){}); }</script>";
 	} else {
 
 		$output = "<hr /><p><em>" . esc_html( $short ) . "</em><br /><a href='" . esc_url( $href ) . "' target='_blank' " . $rel . " >" . esc_html( $atts['prompt'] ) . "</a><br /><hr />";
@@ -237,6 +238,30 @@ function bctt_scripts() {
 
 
 add_action( 'wp_enqueue_scripts', 'bctt_scripts', 10 );
+
+function bctt_fb_sdk() {
+?>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '<?php echo esc_attr( get_option( 'bctt-fb-app-id' ) ); ?>',
+      xfbml      : true,
+      version    : 'v3.2'
+    });
+    FB.AppEvents.logPageView();
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+<?php
+}
+add_action( 'wp_head', 'bctt_fb_sdk' );
 
 /**
  * Check if default stylesheet must not be enqueued
